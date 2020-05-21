@@ -17,7 +17,7 @@ namespace MiniTC.ViewModel
         private string currentFolder;
         private List<string> currentFolderContent;
 
-        private ICommand changeDirectory = null;
+        private ICommand changeFolder = null;
 
         public VMPanelTC()
         {
@@ -45,7 +45,7 @@ namespace MiniTC.ViewModel
             get => currentPath; 
             set { currentPath = value; 
                 onPropertyChanged(nameof(CurrentPath));
-                UpdateListBox();
+                Update();
             }
         }
 
@@ -63,13 +63,13 @@ namespace MiniTC.ViewModel
                 onPropertyChanged(nameof(CurrentFolderContent)); }
         }
 
-        public ICommand ChangeDirectory
+        public ICommand ChangeFolder
         {
             get
             {
-                if (changeDirectory == null)
+                if (changeFolder == null)
                 {
-                    changeDirectory = new RelayCommand(
+                    changeFolder = new RelayCommand(
                         arg =>
                         {
                             if (currentFolder == "...")
@@ -77,47 +77,45 @@ namespace MiniTC.ViewModel
                             else
                             {
                                 if (CurrentPath.EndsWith("\\"))
-                                    CurrentPath += currentFolder.Replace("[D] ", "");
+                                    CurrentPath += CurrentFolder.Replace("<D> ", "");
                                 else
-                                    CurrentPath += "\\" + currentFolder.Replace("[D] ", "");
+                                    CurrentPath += "\\" + CurrentFolder.Replace("<D> ", "");
                             }
                         },
-                        arg => PreviewEntry());
+                        arg => {
+                            if (CurrentFolder == "...")
+                                return true;
+                            if (CurrentFolder != null && CurrentFolder.Contains("<D>"))
+                                return true;
+                            return false;
+                        });
                 }
-                return changeDirectory;
+                return changeFolder;
             }
         }
-        
-        private bool PreviewEntry()
-        {
-            if (currentFolder == "...")
-                return true;
-            if (currentFolder != null && currentFolder.Contains("[D]"))
-                return true;
-            return false;
-        }
 
-        private void UpdateListBox()
+        private void Update()
         {
-            List<string> content = new List<string>();
             try
             {
-                string[] files = Directory.GetFiles(CurrentPath);
-                string[] folders = Directory.GetDirectories(CurrentPath);
-                DirectoryInfo parentFile = Directory.GetParent(CurrentPath);
+                currentFolderContent = new List<string>();
+                if (currentPath != currentDrive)
+                    currentFolderContent.Add("...");
+                Directory.GetDirectories(currentPath).ToList().ForEach(x => currentFolderContent.Add($"<D> {x}"));
+                Directory.GetFiles(currentPath).ToList().ForEach(x => currentFolderContent.Add(x));
 
-                if (parentFile != null)
-                    content.Add("...");
-                foreach (string folder in folders)
-                    if (!(new DirectoryInfo(folder).Attributes.HasFlag(FileAttributes.Hidden)))
-                        content.Add("[D] " + Path.GetFileName(folder));
-                foreach (string file in files)
-                    if (!(new FileInfo(file).Attributes.HasFlag(FileAttributes.Hidden)))
-                        content.Add("      " + Path.GetFileName(file));
+                for (int i = 0; i < currentFolderContent.Count; i++)
+                {
+                    string[] arr = currentFolderContent[i].Split('\\');
+                    if (currentFolderContent[i].Contains("<D>"))
+                        currentFolderContent[i] = $"<D> {arr.Last()}";
+                    else
+                        currentFolderContent[i] = arr.Last();
+                }
             }
             catch { }
-            CurrentFolderContent = content;
-        }
 
+            CurrentFolderContent = currentFolderContent;
+        }
     }
 }

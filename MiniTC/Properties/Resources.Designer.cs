@@ -61,7 +61,7 @@ namespace MiniTC.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Copy.
+        ///   Looks up a localized string similar to &lt;&lt;Copy&gt;&gt;.
         /// </summary>
         public static string CopyButtonContent {
             get {
@@ -70,7 +70,7 @@ namespace MiniTC.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Drive.
+        ///   Looks up a localized string similar to drive.
         /// </summary>
         public static string DriveLabel {
             get {
@@ -79,7 +79,7 @@ namespace MiniTC.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Path.
+        ///   Looks up a localized string similar to path.
         /// </summary>
         public static string PathLabel {
             get {
